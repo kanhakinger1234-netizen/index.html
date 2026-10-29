@@ -1,0 +1,607 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Happy Birthday Chatar Patar! 💖</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&family=Dancing+Script:wght@600;700&family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <!-- Canvas Confetti Library -->
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        babypink: '#FFF0F5',
+                        softpink: '#FFD1DC',
+                        accentpink: '#FF85A1',
+                        deeppink: '#FF477E',
+                        hotpink: '#FF007F',
+                    },
+                    fontFamily: {
+                        fredoka: ['Fredoka', 'sans-serif'],
+                        cursive: ['Dancing Script', 'cursive'],
+                        poppins: ['Poppins', 'sans-serif'],
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: linear-gradient(135deg, #FFF0F5 0%, #FFD1DC 50%, #FFE4E1 100%);
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        /* Floating Hearts Animation */
+        .heart-bg {
+            position: absolute;
+            pointer-events: none;
+            animation: floatUp 8s infinite linear;
+            opacity: 0.6;
+        }
+
+        @keyframes floatUp {
+            0% {
+                transform: translateY(100vh) scale(0.5) rotate(0deg);
+                opacity: 0.8;
+            }
+            100% {
+                transform: translateY(-10vh) scale(1.2) rotate(360deg);
+                opacity: 0;
+            }
+        }
+
+        /* Pulse glow for main elements */
+        .glow-pink {
+            box-shadow: 0 10px 25px -5px rgba(255, 71, 126, 0.4), 0 8px 10px -6px rgba(255, 71, 126, 0.2);
+        }
+
+        /* Envelope animation styles */
+        .envelope {
+            position: relative;
+            width: 100%;
+            max-width: 420px;
+            height: 240px;
+            background: #FF85A1;
+            border-radius: 16px;
+            box-shadow: 0 15px 30px rgba(0,0,0,0.15);
+            cursor: pointer;
+            transition: transform 0.4s ease;
+        }
+
+        .envelope:hover {
+            transform: translateY(-5deg);
+        }
+
+        .envelope-flap {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 0;
+            border-left: 210px solid transparent;
+            border-right: 210px solid transparent;
+            border-top: 130px solid #FF477E;
+            transform-origin: top;
+            transition: transform 0.6s ease;
+            z-index: 3;
+        }
+
+        @media (max-width: 480px) {
+            .envelope-flap {
+                border-left-width: 160px;
+                border-right-width: 160px;
+                border-top-width: 100px;
+            }
+            .envelope {
+                max-width: 320px;
+                height: 200px;
+            }
+        }
+
+        .envelope.open .envelope-flap {
+            transform: rotateX(180deg);
+            z-index: 1;
+        }
+
+        .letter-content {
+            transition: all 0.6s ease;
+            max-height: 0;
+            opacity: 0;
+            overflow: hidden;
+        }
+
+        .letter-content.show {
+            max-height: 2000px;
+            opacity: 1;
+        }
+
+        /* Spinning vinyl effect */
+        .spin-slow {
+            animation: spin 8s linear infinite;
+        }
+
+        .spin-paused {
+            animation-play-state: paused;
+        }
+
+        @keyframes spin {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+
+        /* Glassmorphism */
+        .glass-card {
+            background: rgba(255, 255, 255, 0.88);
+            backdrop-filter: blur(12px);
+            border: 2px solid rgba(255, 255, 255, 0.9);
+        }
+
+        /* Candle flame wiggle */
+        .flame {
+            animation: flicker 0.6s infinite alternate ease-in-out;
+            transform-origin: center bottom;
+        }
+
+        @keyframes flicker {
+            0% { transform: scale(1) rotate(-2deg); opacity: 0.9; }
+            100% { transform: scale(1.15) rotate(2deg); opacity: 1; }
+        }
+    </style>
+</head>
+<body class="flex flex-col min-h-screen justify-between relative selection:bg-accentpink selection:text-white">
+
+    <!-- Floating Background Hearts Container -->
+    <div id="heartsContainer" class="fixed inset-0 overflow-hidden pointer-events-none z-0"></div>
+
+    <!-- Header / Navigation indicator -->
+    <header class="relative z-10 w-full pt-6 px-4 text-center">
+        <div class="inline-flex items-center gap-2 bg-white/80 backdrop-blur-md px-4 py-2 rounded-full border border-pink-200 shadow-sm">
+            <i class="fa-solid font-bold fa-heart text-deeppink text-sm"></i>
+            <span id="stepIndicator" class="font-fredoka text-sm font-medium text-pink-700">Step 1 of 5: Welcome</span>
+        </div>
+    </header>
+
+    <!-- Main Container -->
+    <main class="relative z-10 container mx-auto px-4 py-6 max-w-2xl flex-grow flex items-center justify-center">
+
+        <!-- STEP 1: WELCOME COVER PAGE -->
+        <div id="step1" class="step-card w-full glass-card rounded-3xl p-8 sm:p-10 text-center glow-pink transition-all duration-500 transform scale-100">
+            <div class="inline-block p-4 bg-pink-100 rounded-full mb-4 animate-bounce">
+                <span class="text-5xl sm:text-6xl">🎀</span>
+            </div>
+            
+            <h1 class="font-fredoka text-3xl sm:text-5xl font-bold text-gray-800 mb-2 leading-tight">
+                Happy Birthday,<br>
+                <span class="text-deeppink drop-shadow-sm font-cursive text-4xl sm:text-6xl">Chatar Patar!</span> ✨
+            </h1>
+            
+            <p class="text-pink-600 font-medium text-sm sm:text-base mt-3 mb-8">
+                Today is all about celebrating the sweetest, funniest, and most special best friend ever! 💖
+            </p>
+
+            <div class="space-y-4">
+                <button onclick="nextStep(2)" class="w-full sm:w-auto px-8 py-4 bg-gradient-to-r from-accentpink to-deeppink hover:from-deeppink hover:to-hotpink text-white font-fredoka text-lg rounded-full shadow-lg hover:shadow-xl transform hover:-translate-y-1 transition-all duration-300 flex items-center justify-center gap-3 mx-auto">
+                    <span>Unfold your surprise 💖</span>
+                    <i class="fa-solid fa-gift text-xl"></i>
+                </button>
+            </div>
+
+            <div class="mt-8 flex justify-center gap-2 text-pink-400 text-xs font-semibold uppercase tracking-wider">
+                <span>✦ Cute</span> • <span>✦ Loud</span> • <span>✦ Chatar Patar</span>
+            </div>
+        </div>
+
+
+        <!-- STEP 2: PHOTO DISPLAY -->
+        <div id="step2" class="step-card w-full glass-card rounded-3xl p-6 sm:p-8 text-center glow-pink hidden transition-all duration-500">
+            <div class="mb-4">
+                <span class="bg-pink-100 text-deeppink font-fredoka text-xs px-3 py-1 rounded-full uppercase tracking-wider">Step 2: Birthday Girl</span>
+                <h2 class="font-fredoka text-2xl sm:text-3xl font-bold text-gray-800 mt-2">Our favorite Chatar Patar 💖</h2>
+            </div>
+
+            <!-- Frame Container with photo -->
+            <div class="relative mx-auto my-6 w-64 h-96 sm:w-72 sm:h-[420px] rounded-2xl bg-gradient-to-tr from-softpink via-white to-pink-200 p-3 shadow-xl border-4 border-white glow-pink">
+                
+                <!-- Decorative Corner Bows & Stars -->
+                <div class="absolute -top-3 -left-3 text-3xl z-20 animate-bounce">🎀</div>
+                <div class="absolute -top-3 -right-3 text-2xl z-20">✨</div>
+                <div class="absolute -bottom-3 -left-3 text-2xl z-20">🌸</div>
+                <div class="absolute -bottom-3 -right-3 text-2xl z-20">💖</div>
+
+                <!-- Image Box -->
+                <div class="w-full h-full rounded-xl overflow-hidden bg-pink-50 flex items-center justify-center relative border border-pink-100 shadow-inner">
+                    <img src="diva.png.jpeg" alt="Chatar Patar" class="w-full h-full object-cover object-center transform hover:scale-105 transition-transform duration-500">
+                </div>
+            </div>
+
+            <p class="font-cursive text-2xl text-deeppink font-bold mb-4">"Winking like a star! ✨😉"</p>
+
+            <!-- Navigation Buttons -->
+            <div class="mt-8 flex justify-between items-center pt-4 border-t border-pink-100">
+                <button onclick="nextStep(1)" class="text-gray-500 hover:text-gray-700 text-sm font-medium flex items-center gap-1">
+                    <i class="fa-solid fa-chevron-left text-xs"></i> Back
+                </button>
+                <button onclick="nextStep(3)" class="px-6 py-2.5 bg-deeppink hover:bg-hotpink text-white font-fredoka rounded-full shadow-md transition-all flex items-center gap-2">
+                    <span>Next Surprise</span>
+                    <i class="fa-solid fa-chevron-right text-xs"></i>
+                </button>
+            </div>
+        </div>
+
+
+        <!-- STEP 3: PUNJABI GAANE MUSIC CORNER -->
+        <div id="step3" class="step-card w-full glass-card rounded-3xl p-6 sm:p-8 text-center glow-pink hidden transition-all duration-500">
+            <div class="mb-4">
+                <span class="bg-pink-100 text-deeppink font-fredoka text-xs px-3 py-1 rounded-full uppercase tracking-wider">Step 3: Her Mood</span>
+                <h2 class="font-fredoka text-2xl sm:text-3xl font-bold text-gray-800 mt-2">Punjabi Gaane Corner 🎤🎶</h2>
+            </div>
+
+            <!-- Music Player Box -->
+            <div class="bg-gradient-to-br from-gray-900 via-gray-800 to-black text-white p-6 rounded-2xl shadow-2xl my-6 border-2 border-accentpink relative overflow-hidden">
+                <!-- Glowing blur in player background -->
+                <div class="absolute -right-10 -bottom-10 w-32 h-32 bg-deeppink rounded-full blur-3xl opacity-50"></div>
+
+                <div class="flex flex-col sm:flex-row items-center gap-6 relative z-10">
+                    <!-- Vinyl Record Visual -->
+                    <div class="relative">
+                        <div id="vinylRecord" class="w-28 h-28 sm:w-32 sm:h-32 rounded-full bg-gray-800 border-4 border-gray-700 flex items-center justify-center shadow-lg spin-slow spin-paused">
+                            <!-- Vinyl Grooves -->
+                            <div class="w-20 h-20 rounded-full border-2 border-gray-600 flex items-center justify-center">
+                                <div class="w-12 h-12 rounded-full bg-deeppink flex items-center justify-center text-[10px] font-bold text-white text-center p-1 uppercase">
+                                    Chatar Patar
+                                </div>
+                            </div>
+                        </div>
+                        <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-4 h-4 bg-white rounded-full"></div>
+                    </div>
+
+                    <!-- Song Info -->
+                    <div class="text-center sm:text-left flex-grow">
+                        <span class="inline-block bg-deeppink/30 text-accentpink text-xs font-bold px-2.5 py-0.5 rounded-full mb-1">MOST FAVORITE PLAYLIST</span>
+                        <h3 class="font-fredoka text-lg sm:text-xl font-bold text-white">🎵 Playing her favorite Punjabi Gaane 🎶</h3>
+                        <p class="text-gray-400 text-sm font-medium">Dedicated to Birthday Girl</p>
+                        
+                        <!-- Visualizer waves -->
+                        <div class="flex items-center justify-center sm:justify-start gap-1 my-3 h-6">
+                            <span class="w-1 bg-deeppink h-3 rounded-full animate-pulse"></span>
+                            <span class="w-1 bg-accentpink h-6 rounded-full animate-pulse" style="animation-delay: 0.2s"></span>
+                            <span class="w-1 bg-deeppink h-4 rounded-full animate-pulse" style="animation-delay: 0.4s"></span>
+                            <span class="w-1 bg-softpink h-2 rounded-full animate-pulse" style="animation-delay: 0.1s"></span>
+                            <span class="w-1 bg-deeppink h-5 rounded-full animate-pulse" style="animation-delay: 0.3s"></span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Quote Card -->
+                <div class="mt-5 p-4 bg-white/10 rounded-xl backdrop-blur-md border border-white/10 text-center">
+                    <p class="font-cursive text-xl text-softpink">
+                        "abhi codes chheda hu zyada nahi aata! 🎶💃"
+                    </p>
+                    <p class="text-xs text-gray-300 mt-1 italic">
+                        (punjabi corner hai but yehi sunlo please)
+                    </p>
+                </div>
+
+                <!-- Interactive Play Sound Button -->
+                <div class="mt-5 flex justify-center">
+                    <button id="playMusicBtn" onclick="toggleAudio()" class="px-6 py-2.5 bg-gradient-to-r from-accentpink to-deeppink text-white font-fredoka text-sm rounded-full flex items-center gap-2 shadow-lg hover:scale-105 transition-transform">
+                        <i id="playIcon" class="fa-solid fa-play"></i>
+                        <span id="playBtnText">Play Birthday Beats</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Navigation Buttons -->
+            <div class="mt-8 flex justify-between items-center pt-4 border-t border-pink-100">
+                <button onclick="nextStep(2)" class="text-gray-500 hover:text-gray-700 text-sm font-medium flex items-center gap-1">
+                    <i class="fa-solid fa-chevron-left text-xs"></i> Back
+                </button>
+                <button onclick="nextStep(4)" class="px-6 py-2.5 bg-deeppink hover:bg-hotpink text-white font-fredoka rounded-full shadow-md transition-all flex items-center gap-2">
+                    <span>Read Special Letter</span>
+                    <i class="fa-solid fa-envelope text-xs"></i>
+                </button>
+            </div>
+        </div>
+
+
+        <!-- STEP 4: HEARTFELT LETTER ENVELOPE -->
+        <div id="step4" class="step-card w-full glass-card rounded-3xl p-6 sm:p-8 text-center glow-pink hidden transition-all duration-500">
+            <div class="mb-4">
+                <span class="bg-pink-100 text-deeppink font-fredoka text-xs px-3 py-1 rounded-full uppercase tracking-wider">Step 4: From My Heart</span>
+                <h2 class="font-fredoka text-2xl sm:text-3xl font-bold text-gray-800 mt-2">A Special Message For You 💌</h2>
+            </div>
+
+            <!-- Envelope Container -->
+            <div id="envelopeCard" class="my-6 flex flex-col items-center">
+                
+                <div id="envelope" onclick="toggleEnvelope()" class="envelope flex items-center justify-center relative glow-pink">
+                    <div class="envelope-flap"></div>
+                    <div class="relative z-10 text-white font-fredoka text-center px-4">
+                        <i class="fa-solid fa-heart text-4xl mb-2 text-white animate-pulse"></i>
+                        <p class="text-base font-medium">To: Chatar Patar 💖</p>
+                        <p class="text-xs opacity-90 mt-1">(Tap to Open Envelope)</p>
+                    </div>
+                </div>
+
+                <!-- Letter Content inside envelope -->
+                <div id="letterContent" class="letter-content w-full bg-amber-50/90 border-2 border-pink-200 rounded-2xl p-6 sm:p-8 text-left shadow-lg mt-6 text-gray-800 space-y-4 font-poppins relative">
+                    <div class="absolute top-4 right-4 text-3xl opacity-20">🌸</div>
+                    
+                    <h3 class="font-cursive text-3xl font-bold text-deeppink border-b border-pink-200 pb-2">
+                        Dearest Chatar Patar, 💖
+                    </h3>
+
+                    <p class="text-sm sm:text-base leading-relaxed text-gray-700">
+                        Happy Birthday to my favorite non-stop chatterbox! You truly live up to your nickname <strong>Chatar Patar</strong> because there is never a quiet or boring moment when you are around. 💬✨
+                    </p>
+
+                    <p class="text-sm sm:text-base leading-relaxed text-gray-700">
+                        Whether you are blasting <strong>punjabi gaane</strong> on full volume, maybe youre the reason I love to yapp more, faaltu hi lagta hoga aapko ki aap zyada bolte ho but esa nahi hai.
+                    </p>
+
+                    <p class="text-sm sm:text-base leading-relaxed text-gray-700">
+                        never had a fake laugh with you, zyadanlikhna nhai chahta but agar likh sakta to puri book hoti aap pe!
+                    </p>
+
+                    <div class="pt-4 border-t border-pink-200 text-right">
+                        <p class="font-cursive text-2xl font-bold text-deeppink">Hugs & Love,</p>
+                        <p class="text-sm font-semibold text-gray-600 mt-1">always your rihanaaa 💖</p>
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- Navigation Buttons -->
+            <div class="mt-8 flex justify-between items-center pt-4 border-t border-pink-100">
+                <button onclick="nextStep(3)" class="text-gray-500 hover:text-gray-700 text-sm font-medium flex items-center gap-1">
+                    <i class="fa-solid fa-chevron-left text-xs"></i> Back
+                </button>
+                <button onclick="nextStep(5)" class="px-6 py-2.5 bg-deeppink hover:bg-hotpink text-white font-fredoka rounded-full shadow-md transition-all flex items-center gap-2">
+                    <span>Cut The Cake! 🎂</span>
+                    <i class="fa-solid fa-cake-candles text-xs"></i>
+                </button>
+            </div>
+        </div>
+
+
+        <!-- STEP 5: CAKE & CANDLE CELEBRATION -->
+        <div id="step5" class="step-card w-full glass-card rounded-3xl p-6 sm:p-8 text-center glow-pink hidden transition-all duration-500">
+            <div class="mb-4">
+                <span class="bg-pink-100 text-deeppink font-fredoka text-xs px-3 py-1 rounded-full uppercase tracking-wider">Step 5: Celebration Time</span>
+                <h2 class="font-fredoka text-2xl sm:text-3xl font-bold text-gray-800 mt-2">Make A Wish & Blow Candle! 🎂</h2>
+            </div>
+
+            <!-- Interactive Cake Illustration -->
+            <div class="my-8 relative flex flex-col items-center justify-center">
+                
+                <!-- Candle flame -->
+                <div id="candleFlame" onclick="blowCandle()" class="cursor-pointer flex flex-col items-center -mb-2 z-20 group">
+                    <div class="w-5 h-7 bg-amber-400 rounded-full flame shadow-lg shadow-orange-300 border border-yellow-200"></div>
+                    <div class="w-1.5 h-3 bg-gray-700"></div>
+                </div>
+
+                <!-- Candle stick -->
+                <div class="w-4 h-12 bg-gradient-to-b from-pink-300 to-pink-400 border border-white rounded-t-sm z-10 shadow-sm"></div>
+
+                <!-- Cake layers -->
+                <div class="w-48 h-12 bg-pink-300 rounded-t-2xl border-2 border-white shadow-md flex items-center justify-center text-xl">
+                    🌸 💖 🌸
+                </div>
+                <div class="w-56 h-14 bg-pink-400 border-2 border-white shadow-md flex items-center justify-center text-xl font-bold text-white font-cursive">
+                    Happy Birthday Chatar Patar
+                </div>
+                <div class="w-64 h-16 bg-pink-500 rounded-b-2xl border-2 border-white shadow-lg flex items-center justify-center text-2xl">
+                    🍓 🎂 🍓
+                </div>
+
+            </div>
+
+            <p id="candleInstruction" class="text-sm font-medium text-deeppink animate-pulse mb-6">
+                👆 Tap the flame to blow the candle & trigger the party!
+            </p>
+
+            <!-- Celebration Button -->
+            <div class="flex justify-center gap-3">
+                <button onclick="triggerCelebration()" class="px-8 py-3.5 bg-gradient-to-r from-deeppink via-hotpink to-accentpink text-white font-fredoka text-lg rounded-full shadow-lg hover:shadow-xl hover:scale-105 transition-all flex items-center gap-2">
+                    <i class="fa-solid fa-wand-magic-sparkles"></i>
+                    <span>Party Confetti Shower! 🎉</span>
+                </button>
+            </div>
+
+            <!-- Navigation Buttons -->
+            <div class="mt-8 flex justify-between items-center pt-4 border-t border-pink-100">
+                <button onclick="nextStep(4)" class="text-gray-500 hover:text-gray-700 text-sm font-medium flex items-center gap-1">
+                    <i class="fa-solid fa-chevron-left text-xs"></i> Back
+                </button>
+                <button onclick="nextStep(1)" class="text-deeppink hover:text-hotpink font-fredoka text-sm flex items-center gap-1">
+                    <i class="fa-solid fa-rotate-left text-xs"></i> Replay From Start
+                </button>
+            </div>
+        </div>
+
+    </main>
+
+    <!-- Footer -->
+    <footer class="relative z-10 py-4 text-center text-xs text-pink-600 font-medium">
+        Made with ❤️ for Chatar Patar's Birthday
+    </footer>
+
+
+    <!-- JAVASCRIPT LOGIC -->
+    <script>
+        // 1. Create Floating Background Hearts
+        function createHearts() {
+            const container = document.getElementById('heartsContainer');
+            const heartSymbols = ['💖', '🌸', '✨', '💕', '🎀', '💗'];
+            const count = 18;
+
+            for (let i = 0; i < count; i++) {
+                const heart = document.createElement('div');
+                heart.className = 'heart-bg';
+                heart.innerText = heartSymbols[Math.floor(Math.random() * heartSymbols.length)];
+                heart.style.left = `${Math.random() * 100}%`;
+                heart.style.animationDuration = `${5 + Math.random() * 6}s`;
+                heart.style.animationDelay = `${Math.random() * 5}s`;
+                heart.style.fontSize = `${16 + Math.random() * 20}px`;
+                container.appendChild(heart);
+            }
+        }
+
+        // 2. Navigation Control between Steps
+        let currentStep = 1;
+        function nextStep(stepNumber) {
+            for (let i = 1; i <= 5; i++) {
+                const card = document.getElementById(`step${i}`);
+                if (card) {
+                    card.classList.add('hidden');
+                }
+            }
+
+            const targetCard = document.getElementById(`step${stepNumber}`);
+            if (targetCard) {
+                targetCard.classList.remove('hidden');
+            }
+
+            const indicator = document.getElementById('stepIndicator');
+            const stepTitles = [
+                'Step 1 of 5: Welcome',
+                'Step 2 of 5: Birthday Girl',
+                'Step 3 of 5: Punjabi Gaane',
+                'Step 4 of 5: Heartfelt Letter',
+                'Step 5 of 5: Make A Wish'
+            ];
+            indicator.innerText = stepTitles[stepNumber - 1];
+
+            currentStep = stepNumber;
+
+            if (stepNumber === 5) {
+                triggerConfetti(0.4);
+            }
+        }
+
+        // 3. Web Audio Synth Melody (Reliable audio playback without external link failures)
+        let audioCtx = null;
+        let isPlaying = false;
+        let melodyInterval = null;
+
+        function playBirthdayMelody() {
+            if (!audioCtx) {
+                audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+            }
+
+            const notes = [261.63, 261.63, 293.66, 261.63, 349.23, 329.63, 261.63, 261.63, 293.66, 261.63, 392.00, 349.23];
+            let noteIdx = 0;
+
+            melodyInterval = setInterval(() => {
+                if (!isPlaying || !audioCtx) return;
+                
+                const osc = audioCtx.createOscillator();
+                const gain = audioCtx.createGain();
+
+                osc.type = 'sine';
+                osc.frequency.setValueAtTime(notes[noteIdx], audioCtx.currentTime);
+
+                gain.gain.setValueAtTime(0.15, audioCtx.currentTime);
+                gain.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime + 0.4);
+
+                osc.connect(gain);
+                gain.connect(audioCtx.destination);
+
+                osc.start();
+                osc.stop(audioCtx.currentTime + 0.4);
+
+                noteIdx = (noteIdx + 1) % notes.length;
+            }, 450);
+        }
+
+        function toggleAudio() {
+            const vinyl = document.getElementById('vinylRecord');
+            const playIcon = document.getElementById('playIcon');
+            const playBtnText = document.getElementById('playBtnText');
+
+            if (!isPlaying) {
+                isPlaying = true;
+                playBirthdayMelody();
+                vinyl.classList.remove('spin-paused');
+                playIcon.className = "fa-solid fa-pause";
+                playBtnText.innerText = "Pause Birthday Beats";
+            } else {
+                isPlaying = false;
+                if (melodyInterval) clearInterval(melodyInterval);
+                vinyl.classList.add('spin-paused');
+                playIcon.className = "fa-solid fa-play";
+                playBtnText.innerText = "Play Birthday Beats";
+            }
+        }
+
+        // 4. Envelope Toggle
+        function toggleEnvelope() {
+            const envelope = document.getElementById('envelope');
+            const letter = document.getElementById('letterContent');
+            
+            envelope.classList.toggle('open');
+            
+            setTimeout(() => {
+                letter.classList.toggle('show');
+            }, 300);
+        }
+
+        // 5. Blow Candle Action
+        function blowCandle() {
+            const flame = document.getElementById('candleFlame');
+            const instruction = document.getElementById('candleInstruction');
+            if (flame) {
+                flame.style.display = 'none';
+                instruction.innerText = "✨ Wish Granted! Happy Birthday Chatar Patar! 🎉";
+                triggerCelebration();
+            }
+        }
+
+        // 6. Confetti Animations
+        function triggerConfetti(intensity = 1) {
+            confetti({
+                particleCount: Math.floor(100 * intensity),
+                spread: 70,
+                origin: { y: 0.6 },
+                colors: ['#FF477E', '#FF85A1', '#FFD1DC', '#FF007F', '#FFFFFF']
+            });
+        }
+
+        function triggerCelebration() {
+            const count = 200;
+            const defaults = {
+                origin: { y: 0.7 },
+                colors: ['#FF477E', '#FF85A1', '#FFD1DC', '#FF007F']
+            };
+
+            function fire(particleRatio, opts) {
+                confetti(Object.assign({}, defaults, opts, {
+                    particleCount: Math.floor(count * particleRatio)
+                }));
+            }
+
+            fire(0.25, { spread: 26, startVelocity: 55 });
+            fire(0.2, { spread: 60 });
+            fire(0.35, { spread: 100, decay: 0.91, scalar: 0.8 });
+            fire(0.1, { spread: 120, startVelocity: 25, decay: 0.92, scalar: 1.2 });
+            fire(0.1, { spread: 120, startVelocity: 45 });
+        }
+
+        // Initialize background animation on load
+        window.onload = function() {
+            createHearts();
+        };
+    </script>
+</body>
+</html>
